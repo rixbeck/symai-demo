@@ -1,0 +1,11 @@
+{
+    "NEUROSYMBOLIC_ENGINE_API_KEY": "<YOUR_OPENAI_API_KEY>",
+    "NEUROSYMBOLIC_ENGINE_MODEL": "gpt-4o-mini",
+    "EMBEDDING_ENGINE_API_KEY": "<YOUR_OPENAI_API_KEY>",
+    "EMBEDDING_ENGINE_MODEL": "text-embedding-3-small",
+    "SUPPORT_COMMUNITY": false,
+    "COLLECTION_URI": "mongodb+srv://User:vt3epocXitd6WlQ6@extensityai.c1ajxxy.mongodb.net/?retryWrites=true&w=majority",
+    "COLLECTION_DB": "ExtensityAI",
+    "COLLECTION_STORAGE": "SymbolicAI",
+    "TEXT_TO_SPEECH_ENGINE_API_KEY": "<YOUR_OPENAI_API_KEY>"
+}

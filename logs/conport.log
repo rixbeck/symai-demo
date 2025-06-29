@@ -1,0 +1,7 @@
+2025-06-29 17:59:54,358 - INFO - context_portal_mcp.main - Logging to file: ./logs/conport.log
+2025-06-29 17:59:54,358 - INFO - context_portal_mcp.main - Starting ConPort in STDIO mode using FastMCP for initial CLI arg workspace_id: /home/rix/vscode.projects/MachineLearning/symbolicai/demo1
+2025-06-29 17:59:54,358 - INFO - context_portal_mcp.main - STDIO mode: Using effective_workspace_id '/home/rix/vscode.projects/MachineLearning/symbolicai/demo1'. Database directory will be created on first actual DB use.
+2025-06-29 17:59:54,362 - INFO - context_portal_mcp.main - ConPort FastMCP server lifespan starting.
+2025-06-29 17:59:54,364 - INFO - mcp.server.lowlevel.server - Processing request of type ListToolsRequest
+2025-06-29 17:59:54,367 - INFO - mcp.server.lowlevel.server - Processing request of type ListResourcesRequest
+2025-06-29 17:59:54,368 - INFO - mcp.server.lowlevel.server - Processing request of type ListResourceTemplatesRequest

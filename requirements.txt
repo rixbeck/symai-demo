@@ -1,0 +1,23 @@
+# Core SymbolicAI package
+symbolicai>=0.13.1
+
+# Optional dependencies for full functionality
+# Uncomment the ones you need:
+
+# Web search capabilities
+# symbolicai[serpapi]
+
+# Speech processing
+# symbolicai[whisper]
+
+# Web crawling
+# symbolicai[selenium]
+
+# Symbolic computation
+# symbolicai[wolframalpha]
+
+# Vector database
+# symbolicai[pinecone]
+
+# All optional features at once
+# symbolicai[all]

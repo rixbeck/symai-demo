@@ -8,8 +8,9 @@ to work with Ollama's OpenAI-compatible API endpoint.
 """
 
 import json
+import re
 import requests
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
 from symai.backend.base import Engine
 from symai.functional import EngineRepository
 from symai.backend.settings import SYMAI_CONFIG
@@ -41,6 +42,41 @@ class OllamaEngine(Engine):
     def id(self) -> str:
         """Return the engine identifier."""
         return 'neurosymbolic'
+    
+    def _extract_final_response(self, content: str) -> str:
+        """
+        Extract the final response from content that may contain thinking tags.
+        
+        Args:
+            content: Raw content from the model that may contain <think>...</think> tags
+            
+        Returns:
+            str: Clean response without thinking tags
+        """
+        if not content:
+            return content
+        
+        # Remove <think>...</think> blocks (including nested ones)
+        # Pattern explanation: <think> followed by anything (non-greedy) followed by </think>
+        think_pattern = r'<think>.*?</think>'
+        
+        # Remove all thinking blocks
+        cleaned = re.sub(think_pattern, '', content, flags=re.DOTALL)
+        
+        # Clean up extra whitespace
+        cleaned = cleaned.strip()
+        
+        # If nothing is left after removing think tags, return original
+        if not cleaned and content:
+            # Fallback: try to find content after the last </think>
+            last_think_end = content.rfind('</think>')
+            if last_think_end != -1:
+                cleaned = content[last_think_end + 8:].strip()
+            else:
+                # No think tags found, return original
+                cleaned = content.strip()
+        
+        return cleaned
     
     def prepare(self, argument):
         """
@@ -80,7 +116,7 @@ class OllamaEngine(Engine):
                 "model": self.model,
                 "messages": messages,
                 "temperature": kwargs.get("temperature", 0.7),
-                "max_tokens": kwargs.get("max_tokens", 1000),
+                "max_tokens": kwargs.get("max_tokens", 2000),  # Increased for longer responses
                 "stream": False
             }
             
@@ -102,11 +138,11 @@ class OllamaEngine(Engine):
                 "model": self.model,
                 "messages": [{"role": "user", "content": str(argument.prop.preprocessed_input)}],
                 "temperature": 0.7,
-                "max_tokens": 1000,
+                "max_tokens": 2000,
                 "stream": False
             }
     
-    def forward(self, argument) -> Tuple[str, Dict[str, Any]]:
+    def forward(self, argument) -> Tuple[List[str], Dict[str, Any]]:
         """
         Execute the API call to Ollama.
         
@@ -114,7 +150,7 @@ class OllamaEngine(Engine):
             argument: Contains the prepared input and other properties
             
         Returns:
-            Tuple[str, Dict]: (response_content, metadata) as expected by SymbolicAI
+            Tuple[List[str], Dict]: (list_of_responses, metadata) as expected by SymbolicAI
         """
         metadata = {
             "model": self.model,
@@ -146,35 +182,43 @@ class OllamaEngine(Engine):
             
             # Extract the content from Ollama's response
             if "choices" in result and len(result["choices"]) > 0:
-                content = result["choices"][0]["message"]["content"]
+                raw_content = result["choices"][0]["message"]["content"]
+                
+                # Clean the content to remove thinking tags
+                clean_content = self._extract_final_response(raw_content)
                 
                 # Add usage information to metadata if available
                 if "usage" in result:
                     metadata["usage"] = result["usage"]
                 
-                if self.verbose:
-                    print(f"Ollama response: {content[:100]}...")
+                # Add raw content to metadata for debugging
+                metadata["raw_content"] = raw_content[:200] + "..." if len(raw_content) > 200 else raw_content
                 
-                # Return content and metadata tuple as expected by SymbolicAI
-                return content, metadata
+                if self.verbose:
+                    print(f"Raw response: {raw_content[:100]}...")
+                    print(f"Clean response: {clean_content[:100]}...")
+                    print(f"Returning: {[clean_content]}")
+                
+                # Return as (list_of_responses, metadata) tuple as expected by SymbolicAI
+                return [clean_content] if clean_content else ["No response generated"], metadata
             else:
-                return "No response generated", metadata
+                return ["No response generated"], metadata
                 
         except requests.exceptions.RequestException as e:
             error_msg = f"Ollama API request failed: {e}"
             if self.verbose:
                 print(error_msg)
-            return f"Error: {error_msg}", metadata
+            return [f"Error: {error_msg}"], metadata
         except json.JSONDecodeError as e:
             error_msg = f"Failed to decode Ollama response: {e}"
             if self.verbose:
                 print(error_msg)
-            return f"Error: {error_msg}", metadata
+            return [f"Error: {error_msg}"], metadata
         except Exception as e:
             error_msg = f"Unexpected error in OllamaEngine.forward: {e}"
             if self.verbose:
                 print(error_msg)
-            return f"Error: {error_msg}", metadata
+            return [f"Error: {error_msg}"], metadata
 
 
 def setup_ollama_engine(config_path: str = "symai.config.ollama.json", allow_override: bool = True) -> bool:
@@ -258,13 +302,20 @@ if __name__ == "__main__":
         if setup_ollama_engine():
             print("\n🎉 Ollama engine is ready to use!")
             
-            # Quick integration test
+            # Quick integration test with verbose output
             try:
                 from symai import Symbol
                 
+                # Create engine with verbose mode
+                engine = OllamaEngine()
+                engine.verbose = True
+                EngineRepository.register('neurosymbolic', engine, allow_engine_override=True)
+                
                 test_symbol = Symbol("Hello Ollama!")
-                response = test_symbol.query("Respond with 'Ollama integration working!'")
-                print(f"\n🧪 Integration test: {response}")
+                response = test_symbol.query("Say 'Hello World!' and then explain what a greeting is.")
+                print(f"\n🧪 Integration test result: {response}")
+                print(f"🧪 Integration test type: {type(response)}")
+                print(f"🧪 Integration test value: {response.value if hasattr(response, 'value') else 'N/A'}")
                 print("✅ SymbolicAI + Ollama integration successful!")
                 
             except Exception as e:

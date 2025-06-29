@@ -1,0 +1,10 @@
+var/cache
+var/log
+.idea
+.run
+vendor/composer
+build
+node_modules
+package-lock.json
+composer.lock
+

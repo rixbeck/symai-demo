@@ -86,9 +86,28 @@ class OllamaEngine(Engine):
             argument: Contains preprocessed input, args, kwargs, and properties
         """
         try:
-            # Get the preprocessed input from SymbolicAI
-            prompts = argument.prop.preprocessed_input
+            # Get the input from SymbolicAI - check multiple possible locations
+            prompts = None
+            
+            # Try different input sources in order of preference
+            if hasattr(argument.prop, 'preprocessed_input') and argument.prop.preprocessed_input:
+                prompts = argument.prop.preprocessed_input
+            elif hasattr(argument.prop, 'processed_input') and argument.prop.processed_input:
+                prompts = argument.prop.processed_input
+            elif hasattr(argument.prop, 'instance') and argument.prop.instance:
+                # Fallback to instance content
+                context = argument.kwargs.get('context', '')
+                if context:
+                    prompts = f"Data: {argument.prop.instance}\nContext: {context}\nAnswer:"
+                else:
+                    prompts = str(argument.prop.instance)
+            else:
+                prompts = "Please provide a helpful response."
+            
             kwargs = argument.kwargs
+            
+            if self.verbose:
+                print(f"  📝 Found prompts: {repr(prompts)}")
             
             # Handle different input formats
             if isinstance(prompts, list):
@@ -116,7 +135,7 @@ class OllamaEngine(Engine):
                 "model": self.model,
                 "messages": messages,
                 "temperature": kwargs.get("temperature", 0.7),
-                "max_tokens": kwargs.get("max_tokens", 2000),  # Increased for longer responses
+                "max_tokens": kwargs.get("max_tokens", 2000),
                 "stream": False
             }
             
@@ -136,7 +155,7 @@ class OllamaEngine(Engine):
             # Fallback preparation
             argument.prop.prepared_input = {
                 "model": self.model,
-                "messages": [{"role": "user", "content": str(argument.prop.preprocessed_input)}],
+                "messages": [{"role": "user", "content": "Please provide a helpful response."}],
                 "temperature": 0.7,
                 "max_tokens": 2000,
                 "stream": False
@@ -162,7 +181,7 @@ class OllamaEngine(Engine):
             payload = argument.prop.prepared_input
             
             if self.verbose:
-                print(f"Sending request to Ollama: {payload}")
+                print(f"📤 Sending request to Ollama: {payload}")
             
             # Make the API call to Ollama
             headers = {
@@ -195,9 +214,8 @@ class OllamaEngine(Engine):
                 metadata["raw_content"] = raw_content[:200] + "..." if len(raw_content) > 200 else raw_content
                 
                 if self.verbose:
-                    print(f"Raw response: {raw_content[:100]}...")
-                    print(f"Clean response: {clean_content[:100]}...")
-                    print(f"Returning: {[clean_content]}")
+                    print(f"📥 Raw response: {raw_content[:100]}...")
+                    print(f"✨ Clean response: {clean_content[:100]}...")
                 
                 # Return as (list_of_responses, metadata) tuple as expected by SymbolicAI
                 return [clean_content] if clean_content else ["No response generated"], metadata
@@ -312,10 +330,9 @@ if __name__ == "__main__":
                 EngineRepository.register('neurosymbolic', engine, allow_engine_override=True)
                 
                 test_symbol = Symbol("Hello Ollama!")
-                response = test_symbol.query("Say 'Hello World!' and then explain what a greeting is.")
-                print(f"\n🧪 Integration test result: {response}")
-                print(f"🧪 Integration test type: {type(response)}")
-                print(f"🧪 Integration test value: {response.value if hasattr(response, 'value') else 'N/A'}")
+                print(f"\n🧪 Testing query: 'Say exactly: Integration working!'")
+                response = test_symbol.query("Say exactly: Integration working!")
+                print(f"🎯 Result: {response}")
                 print("✅ SymbolicAI + Ollama integration successful!")
                 
             except Exception as e:

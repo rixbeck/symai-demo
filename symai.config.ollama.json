@@ -1,6 +1,6 @@
 {
     "NEUROSYMBOLIC_ENGINE_API_KEY": "ollama",
-    "NEUROSYMBOLIC_ENGINE_MODEL": "deepseek-r1:14b",
+    "NEUROSYMBOLIC_ENGINE_MODEL": "llama3.2:3b",
     "NEUROSYMBOLIC_ENGINE_BASE_URL": "http://localhost:11434/v1",
     "EMBEDDING_ENGINE_API_KEY": "ollama",
     "EMBEDDING_ENGINE_MODEL": "nomic-embed-text",

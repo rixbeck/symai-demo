@@ -1,18 +1,29 @@
 #!/usr/bin/env python3
 """
-SymbolicAI Playground - Basic Demonstration
-===========================================
+SymbolicAI Playground - Unified Demonstration
+==========================================
 
-This script demonstrates the core features of SymbolicAI using either:
-- OpenAI's cloud-based API
-- Local Ollama LLM integration
+This is the main demonstration script for SymbolicAI, supporting both OpenAI and Ollama
+backends through a unified interface. Each demo adapts its functionality based on the
+selected engine, ensuring compatibility across both cloud and local LLM implementations.
+
+Supported Engines:
+- OpenAI: Cloud-based API access to GPT models
+- Ollama: Local LLM integration with various models
 
 Usage:
     python main.py [openai|ollama]
 
-Example:
-    python main.py openai    # Run with OpenAI
-    python main.py ollama    # Run with Ollama
+Examples:
+    python main.py openai    # Run demos using OpenAI's cloud API
+    python main.py ollama    # Run demos using local Ollama installation
+
+Notes:
+- Each demo adapts to the selected engine's capabilities
+- Semantic operations are consistently available across both engines
+- Configuration files:
+  * OpenAI: symai.config.openai.json
+  * Ollama: symai.config.ollama.json
 """
 
 import os

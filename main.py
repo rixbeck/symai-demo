@@ -124,7 +124,7 @@ def demo_symbol_operations():
 def demo_data_processing():
     """Demonstrate data processing capabilities."""
     print("\n" + "="*60)
-    print("📊 DEMO 3: Data Processing and Clustering")
+    print("📊 DEMO 3: Data Processing and Analysis")
     print("="*60)
     
     try:
@@ -132,24 +132,33 @@ def demo_data_processing():
         
         # Sample data for processing
         animals = Symbol([
-            "cat", "dog", "lion", "tiger", "goldfish", 
+            "cat", "dog", "lion", "tiger", "goldfish",
             "shark", "whale", "eagle", "sparrow", "penguin"
         ])
         
         print(f"Animals list: {animals}")
         
-        # Semantic clustering
-        print("\n🔍 Clustering animals by type...")
-        clusters = animals.cluster()
-        print(f"Clustered groups: {clusters}")
+        # Group animals by type using semantic filtering
+        print("\n🔍 Finding mammals in the list...")
+        mammals = animals.filter("find all mammals")
+        print(f"Mammals: {mammals}")
         
-        # Conditional processing
-        print("\n🐾 Processing with conditions...")
-        mammals = animals.foreach("if animal is a mammal", "mark as mammal")
-        print(f"Mammal analysis: {mammals}")
+        print("\n🐟 Finding aquatic animals...")
+        aquatic = animals.filter("find all aquatic animals")
+        print(f"Aquatic animals: {aquatic}")
+        
+        print("\n🦅 Finding birds...")
+        birds = animals.filter("find all birds")
+        print(f"Birds: {birds}")
+        
+        # Demonstrate simple classification
+        print("\n🏷️ Classifying by habitat...")
+        habitats = Symbol(animals).query("classify each animal by their typical habitat (land, water, or air)")
+        print(f"Habitat classification:\n{habitats}")
         
     except Exception as e:
         print(f"❌ Error in data processing demo: {e}")
+        print(f"   Using {current_engine['config']['display_name']} backend")
 
 def demo_contracts_basic():
     """Demonstrate basic contract validation."""
@@ -223,11 +232,73 @@ def demo_configuration():
         print(f"❌ Error in configuration demo: {e}")
         print(f"   Please check {config_file} exists and is valid JSON")
 
+def demo_embeddings():
+    """Demonstrate embedding generation and vector operations."""
+    print("\n" + "="*60)
+    engine_name = current_engine['config']['display_name']
+    print(f"🧬 DEMO 6: Embeddings with {engine_name}")
+    print("="*60)
+    
+    try:
+        from symai import Symbol
+        
+        # Create test symbols with semantic understanding
+        text1 = Symbol("The cat chases the mouse", semantic=True)
+        text2 = Symbol("A feline pursues a rodent", semantic=True)
+        text3 = Symbol("The dog barks at the mailman", semantic=True)
+        
+        # Demonstrate semantic matching
+        print("Testing semantic relationships...")
+        print(f"\nComparing similar concepts:")
+        print(f"Text 1: '{text1}'")
+        print(f"Text 2: '{text2}'")
+        print(f"Semantic match: {text1.sem == text2.sem}")
+        
+        print(f"\nComparing different concepts:")
+        print(f"Text 1: '{text1}'")
+        print(f"Text 3: '{text3}'")
+        print(f"Semantic match: {text1.sem == text3.sem}")
+        
+        # Demonstrate semantic search
+        print("\n🔍 Testing semantic search...")
+        corpus = Symbol([
+            "The sun is shining brightly today",
+            "Heavy rain falls from dark clouds",
+            "A beautiful sunny morning in the park",
+            "Thunder and lightning fill the stormy sky",
+            "Children play under the warm sunlight"
+        ])
+        
+        # Search using semantic understanding
+        query = Symbol("good weather", semantic=True)
+        print(f"\nSearching for: '{query}'")
+        results = corpus.filter("find texts about good weather")
+        print("Top matches:")
+        for idx, result in enumerate(results[:2], 1):
+            print(f"  {idx}. {result}")
+        
+        # Display capabilities
+        print(f"\n🔬 {engine_name} Semantic Features:")
+        if current_engine['type'] == 'openai':
+            print("  • Advanced semantic understanding")
+            print("  • Cross-lingual capabilities")
+            print("  • Context-aware matching")
+            print("  • Cloud-based processing")
+        else:
+            print("  • Local semantic processing")
+            print("  • Pattern matching")
+            print("  • Text similarity detection")
+            print("  • No API costs")
+        
+    except Exception as e:
+        print(f"❌ Error in embeddings demo: {e}")
+        print(f"   Please verify your {engine_name} setup and try again")
+
 def demo_advanced_features():
     """Demonstrate advanced features briefly."""
     print("\n" + "="*60)
     engine_name = current_engine['config']['display_name']
-    print(f"🚀 DEMO 6: Advanced Features with {engine_name}")
+    print(f"🚀 DEMO 7: Advanced Features with {engine_name}")
     print("="*60)
     
     try:
@@ -300,6 +371,7 @@ def main():
         demo_data_processing()
         demo_contracts_basic()
         demo_configuration()
+        demo_embeddings()
         demo_advanced_features()
         
         print("\n" + "="*60)

@@ -10,8 +10,8 @@ allowing dynamic engine setup based on configuration.
 import json
 from typing import Optional
 from symai.functional import EngineRepository
-from openai_engine import OpenAIEngine, test_openai_connection
-from ollama_engine import OllamaEngine, test_ollama_connection
+from .openai_engine import OpenAIEngine, test_openai_connection
+from .ollama_engine import OllamaEngine, test_ollama_connection
 
 class EngineManager:
     """

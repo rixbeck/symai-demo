@@ -4,7 +4,7 @@ Unified Engine Test Script for SymbolicAI
 =======================================
 
 Tests engine integrations (OpenAI, Ollama, etc.) with command-line selection.
-Usage: python test_engine.py [openai|ollama]
+Usage: python -m src.tests.test_engine [openai|ollama]
 """
 
 import json
@@ -15,22 +15,9 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 
 from symai import Symbol
-from engine_manager import EngineManager
 from symai.functional import EngineRepository
-
-# Engine-specific configurations
-ENGINE_CONFIGS = {
-    'openai': {
-        'config_file': 'symai.config.openai.json',
-        'default_base_url': 'http://api.openai.com/v1',
-        'default_model': 'gpt-4',
-    },
-    'ollama': {
-        'config_file': 'symai.config.ollama.json',
-        'default_base_url': 'http://localhost:11434/v1',
-        'default_model': 'deepseek-r1:14b',
-    }
-}
+from ..engines.engine_manager import EngineManager
+from ..utils.config import ENGINE_CONFIGS, is_valid_engine, get_engine_config
 
 def is_local_endpoint(url: str) -> bool:
     """Check if the endpoint is local."""
@@ -39,15 +26,29 @@ def is_local_endpoint(url: str) -> bool:
 def load_config(engine_type: str) -> Dict[str, Any]:
     """Load engine configuration."""
     config_file = ENGINE_CONFIGS[engine_type]['config_file']
+    
+    # Define default values for each engine type
+    defaults = {
+        'openai': {
+            'default_base_url': 'https://api.openai.com/v1',
+            'default_model': 'gpt-4'
+        },
+        'ollama': {
+            'default_base_url': 'http://localhost:11434/v1',
+            'default_model': 'deepseek-r1:14b'
+        }
+    }
+    
     try:
         with open(config_file, 'r') as f:
             config = json.load(f)
             
         # Set defaults if not specified
-        config.setdefault('NEUROSYMBOLIC_ENGINE_BASE_URL', 
-                         ENGINE_CONFIGS[engine_type]['default_base_url'])
-        config.setdefault('NEUROSYMBOLIC_ENGINE_MODEL', 
-                         ENGINE_CONFIGS[engine_type]['default_model'])
+        engine_defaults = defaults.get(engine_type, {})
+        config.setdefault('NEUROSYMBOLIC_ENGINE_BASE_URL',
+                         engine_defaults.get('default_base_url'))
+        config.setdefault('NEUROSYMBOLIC_ENGINE_MODEL',
+                         engine_defaults.get('default_model'))
         
         return config
     except FileNotFoundError:
@@ -196,8 +197,8 @@ def run_tests(engine_type: str) -> Tuple[int, int]:
 
 def main():
     """Main test execution function."""
-    if len(sys.argv) != 2 or sys.argv[1] not in ENGINE_CONFIGS:
-        print("Usage: python test_engine.py [openai|ollama]")
+    if len(sys.argv) != 2 or not is_valid_engine(sys.argv[1]):
+        print("Usage: python -m src.tests.test_engine [openai|ollama]")
         print("\nAvailable engines:")
         for engine in ENGINE_CONFIGS:
             print(f"  • {engine}")

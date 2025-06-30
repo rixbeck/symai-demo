@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
 Simple test script to verify SymbolicAI setup
+Usage: python -m src.tests.test_setup
 """
+
+import json
+from pathlib import Path
 
 def test_basic_import():
     """Test if SymbolicAI imports correctly."""
@@ -36,9 +40,6 @@ def test_basic_symbol():
 def test_configuration():
     """Test configuration loading."""
     try:
-        import json
-        from pathlib import Path
-        
         config_path = Path("symai.config.json")
         if config_path.exists():
             with open(config_path) as f:
@@ -59,15 +60,32 @@ def test_configuration():
         print(f"❌ Configuration test failed: {e}")
         return False
 
+def test_module_structure():
+    """Test that the refactored module structure works."""
+    try:
+        from ..engines.engine_manager import EngineManager
+        from ..utils.config import ENGINE_CONFIGS
+        from ..demos import demos
+        
+        print("✅ Refactored module structure imports successfully")
+        print(f"   Available engines: {list(ENGINE_CONFIGS.keys())}")
+        print(f"   EngineManager loaded: {EngineManager.__name__}")
+        print(f"   Demo functions available: {len([f for f in dir(demos) if f.startswith('demo_')])}")
+        return True
+    except ImportError as e:
+        print(f"❌ Module structure test failed: {e}")
+        return False
+
 def main():
     """Run all tests."""
-    print("🔧 Testing SymbolicAI Setup")
-    print("=" * 40)
+    print("🔧 Testing SymbolicAI Setup and Module Structure")
+    print("=" * 50)
     
     tests = [
         test_basic_import,
         test_basic_symbol, 
-        test_configuration
+        test_configuration,
+        test_module_structure
     ]
     
     passed = 0
@@ -80,7 +98,8 @@ def main():
     
     if passed == len(tests):
         print("🎉 Setup is complete! You can run the main demo:")
-        print("   ./symbolicai/bin/python main.py")
+        print("   python main.py [openai|ollama]")
+        print("   python -m src.tests.test_engine [openai|ollama]")
     else:
         print("⚠️  Some issues found. Check the errors above.")
 

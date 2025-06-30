@@ -20,8 +20,8 @@ python main.py openai
 python -m src.tests.test_setup
 
 # Engine integration tests
-python -m src.tests.test_engine ollama
-python -m src.tests.test_engine openai
+python test_engine.py ollama
+python test_engine.py openai
 ```
 
 ### Running Debug Scripts
@@ -144,7 +144,7 @@ All configuration can be overridden with environment variables:
 ```bash
 # Old
 python test_engine.py ollama
-python debug_ollama.py
+python -m src.debug.debug_ollama
 
 # New
 python -m src.tests.test_engine ollama

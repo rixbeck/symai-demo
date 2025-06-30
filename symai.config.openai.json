@@ -1,0 +1,9 @@
+{
+    "NEUROSYMBOLIC_ENGINE_BASE_URL": "http://localhost:8099",
+    "NEUROSYMBOLIC_ENGINE_MODEL": "gpt-4.1",
+    "NEUROSYMBOLIC_ENGINE_API_KEY": "dummy",
+    "EMBEDDING_ENGINE_API_KEY": "nokey",
+    "EMBEDDING_ENGINE_MODEL": "text-embedding-3-small",
+    "SUPPORT_COMMUNITY": false,
+    "TEXT_TO_SPEECH_ENGINE_API_KEY": "nokey"
+}

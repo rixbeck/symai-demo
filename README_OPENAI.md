@@ -63,10 +63,10 @@ This implementation provides OpenAI API support for SymbolicAI, allowing you to 
 
 ## Testing
 
-Run the test suite to verify your setup:
+Run the unified test suite to verify your setup:
 
 ```bash
-python test_openai.py
+python test_engine.py openai
 ```
 
 The test script will:
@@ -75,6 +75,9 @@ The test script will:
 3. Verify engine setup
 4. Run basic query tests
 5. Test context handling
+6. Perform performance benchmarking
+
+For more details on testing, see [TEST_README.md](TEST_README.md)
 
 ## Configuration Options
 

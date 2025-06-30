@@ -241,55 +241,6 @@ class OpenAIEngine(Engine):
             return [f"Error: {error_msg}"], metadata
 
 
-def setup_openai_engine(config_path: str = "symai.config.json", allow_override: bool = True) -> bool:
-    """
-    Set up and register the OpenAI engine with SymbolicAI.
-    
-    Args:
-        config_path: Path to the configuration file
-        allow_override: Whether to allow overriding existing engine
-        
-    Returns:
-        bool: True if setup was successful, False otherwise
-    """
-    try:
-        # Load configuration
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-        
-        base_url = config.get("NEUROSYMBOLIC_ENGINE_BASE_URL", "https://api.openai.com/v1")
-        model = config.get("NEUROSYMBOLIC_ENGINE_MODEL", "gpt-4")
-        api_key = config.get("NEUROSYMBOLIC_ENGINE_API_KEY")
-        
-        if not api_key or api_key == "<YOUR_OPENAI_API_KEY>":
-            print("❌ OpenAI API key not found in config")
-            return False
-        
-        # Create and register the engine
-        openai_engine = OpenAIEngine(base_url=base_url, model=model, api_key=api_key)
-        
-        # Check if engine is already registered
-        if allow_override or 'neurosymbolic' not in EngineRepository._engines:
-            EngineRepository.register('neurosymbolic', openai_engine, allow_engine_override=allow_override)
-            
-            print(f"✅ OpenAI engine registered successfully!")
-            print(f"   Base URL: {base_url}")
-            print(f"   Model: {model}")
-            return True
-        else:
-            print("⚠️  Engine already registered. Use allow_override=True to replace.")
-            return False
-        
-    except FileNotFoundError:
-        print(f"❌ Configuration file not found: {config_path}")
-        return False
-    except json.JSONDecodeError as e:
-        print(f"❌ Invalid JSON in configuration file: {e}")
-        return False
-    except Exception as e:
-        print(f"❌ Failed to setup OpenAI engine: {e}")
-        return False
-
 
 def test_openai_connection(base_url: str = "https://api.openai.com/v1", api_key: str = None) -> bool:
     """
@@ -324,45 +275,25 @@ def test_openai_connection(base_url: str = "https://api.openai.com/v1", api_key:
 
 
 if __name__ == "__main__":
-    # Test the setup
+    # Test the setup using EngineManager
     print("🔧 Testing OpenAI Engine Setup")
     print("=" * 50)
     
     try:
-        # Load config to get API key
-        with open("symai.config.json", 'r') as f:
-            config = json.load(f)
-        api_key = config.get("NEUROSYMBOLIC_ENGINE_API_KEY")
+        from engine_manager import EngineManager
+        from symai import Symbol
         
-        # Test connection
-        if test_openai_connection(api_key=api_key):
-            # Set up engine
-            if setup_openai_engine():
-                print("\n🎉 OpenAI engine is ready to use!")
-                
-                # Quick integration test with verbose output
-                try:
-                    from symai import Symbol
-                    
-                    # Create engine with verbose mode
-                    engine = OpenAIEngine(api_key=api_key)
-                    engine.verbose = True
-                    EngineRepository.register('neurosymbolic', engine, allow_engine_override=True)
-                    
-                    test_symbol = Symbol("Hello OpenAI!")
-                    print(f"\n🧪 Testing query: 'Say exactly: Integration working!'")
-                    response = test_symbol.query("Say exactly: Integration working!")
-                    print(f"🎯 Result: {response}")
-                    print("✅ SymbolicAI + OpenAI integration successful!")
-                    
-                except Exception as e:
-                    print(f"\n⚠️  Integration test failed: {e}")
-                    import traceback
-                    traceback.print_exc()
-            else:
-                print("\n❌ Failed to set up OpenAI engine")
-        else:
-            print("\n❌ OpenAI API is not accessible")
+        # Set up engine through manager
+        if EngineManager.setup_engine('openai'):
+            print("\n🎉 OpenAI engine is ready to use!")
+            
+            # Quick integration test
+            test_symbol = Symbol("Hello OpenAI!")
+            print(f"\n🧪 Testing query: 'Say exactly: Integration working!'")
+            response = test_symbol.query("Say exactly: Integration working!")
+            print(f"🎯 Result: {response}")
+            print("✅ SymbolicAI + OpenAI integration successful!")
+            
     except Exception as e:
         print(f"\n❌ Setup failed: {e}")
         print("\nTo use OpenAI engine:")

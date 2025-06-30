@@ -34,8 +34,10 @@ ollama serve
 ### 4. Test the Integration
 
 ```bash
-./symbolicai/bin/python test_ollama.py
+./symbolicai/bin/python test_engine.py ollama
 ```
+
+See [TEST_README.md](TEST_README.md) for detailed testing information.
 
 ### 5. Run the Demo
 

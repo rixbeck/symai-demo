@@ -23,42 +23,16 @@ def check_ollama_setup():
     print("🔧 Checking Ollama Setup...")
     print("=" * 60)
     
-    # Import the custom engine
+    # Import the engine manager
     try:
-        from ollama_engine import test_ollama_connection, setup_ollama_engine
+        from engine_manager import EngineManager
     except ImportError as e:
-        print(f"❌ Cannot import ollama_engine: {e}")
+        print(f"❌ Cannot import engine_manager: {e}")
         return False
     
-    # Check if config file exists
-    config_path = Path("symai.config.ollama.json")
-    if not config_path.exists():
-        print("❌ Ollama configuration file not found!")
-        print("   Expected: symai.config.ollama.json")
-        return False
-    
-    # Load and validate config
-    try:
-        with open(config_path) as f:
-            config = json.load(f)
-        
-        base_url = config.get("NEUROSYMBOLIC_ENGINE_BASE_URL", "http://localhost:11434/v1")
-        model = config.get("NEUROSYMBOLIC_ENGINE_MODEL", "deepseek-r1:14b")
-        
-        print(f"📁 Configuration loaded:")
-        print(f"   Base URL: {base_url}")
-        print(f"   Model: {model}")
-        
-    except Exception as e:
-        print(f"❌ Error reading config: {e}")
-        return False
-    
-    # Test connection to Ollama
-    if not test_ollama_connection(base_url):
-        return False
-    
-    # Setup the engine
-    if not setup_ollama_engine():
+    # Setup the engine using EngineManager
+    if not EngineManager.setup_engine('ollama', config_path="symai.config.ollama.json"):
+        print("❌ Failed to setup Ollama engine")
         return False
     
     print("✅ Ollama setup complete!")

@@ -5,7 +5,7 @@ Debug script to investigate Ollama integration issues
 
 import json
 import requests
-from ollama_engine import setup_ollama_engine
+from engine_manager import EngineManager
 from symai import Symbol
 
 def test_direct_ollama_api():

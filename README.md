@@ -55,11 +55,16 @@ symbolicai-playground/
 ├── main.py                   # OpenAI demo script
 ├── main_ollama.py           # Ollama demo script
 ├── ollama_engine.py         # Custom Ollama integration
+├── openai_engine.py         # Custom OpenAI integration
+├── engine_manager.py        # Unified engine management
+├── test_engine.py          # Unified test suite
 ├── symai.config.json        # OpenAI configuration
 ├── symai.config.ollama.json # Ollama configuration
 ├── requirements.txt         # Package dependencies
 ├── README.md               # This file
-└── README_OLLAMA.md        # Ollama setup guide
+├── README_OLLAMA.md        # Ollama setup guide
+├── README_OPENAI.md        # OpenAI setup guide
+└── TEST_README.md          # Testing documentation
 ```
 
 ## 🎭 What You'll Learn
@@ -231,18 +236,31 @@ class DataExtractor(Expression):
 3. **General Issues**:
    - Import Error: Verify SymbolicAI is installed: `./symbolicai/bin/pip list | grep symbolic`
 
-### Getting Help
+### Testing and Validation
+
+Before using either engine setup, you can validate your configuration:
 
 ```bash
-# Check current configuration
+# Test engine setup
+./symbolicai/bin/python test_engine.py [openai|ollama]
+
+# Examples:
+./symbolicai/bin/python test_engine.py openai  # Test OpenAI setup
+./symbolicai/bin/python test_engine.py ollama  # Test Ollama setup
+
+# Check version and configuration
 ./symbolicai/bin/python -c "import symai; print(symai.__version__)"
-
-# Run tests
-./symbolicai/bin/python -m pytest tests/
-
-# View configuration
 ./symbolicai/bin/symconfig
 ```
+
+The test suite will verify:
+- Configuration validity
+- API/server accessibility
+- Basic query functionality
+- Context handling
+- Performance benchmarks
+
+See [TEST_README.md](TEST_README.md) for detailed testing documentation.
 
 ## 🚀 Next Steps
 

@@ -239,51 +239,6 @@ class OllamaEngine(Engine):
             return [f"Error: {error_msg}"], metadata
 
 
-def setup_ollama_engine(config_path: str = "symai.config.ollama.json", allow_override: bool = True) -> bool:
-    """
-    Set up and register the Ollama engine with SymbolicAI.
-    
-    Args:
-        config_path: Path to the Ollama configuration file
-        allow_override: Whether to allow overriding existing engine
-        
-    Returns:
-        bool: True if setup was successful, False otherwise
-    """
-    try:
-        # Load configuration
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-        
-        base_url = config.get("NEUROSYMBOLIC_ENGINE_BASE_URL", "http://localhost:11434/v1")
-        model = config.get("NEUROSYMBOLIC_ENGINE_MODEL", "deepseek-r1:14b")
-        api_key = config.get("NEUROSYMBOLIC_ENGINE_API_KEY", "ollama")
-        
-        # Create and register the engine
-        ollama_engine = OllamaEngine(base_url=base_url, model=model, api_key=api_key)
-        
-        # Check if engine is already registered
-        if allow_override or 'neurosymbolic' not in EngineRepository._engines:
-            EngineRepository.register('neurosymbolic', ollama_engine, allow_engine_override=allow_override)
-            
-            print(f"✅ Ollama engine registered successfully!")
-            print(f"   Base URL: {base_url}")
-            print(f"   Model: {model}")
-            return True
-        else:
-            print("⚠️  Engine already registered. Use allow_override=True to replace.")
-            return False
-        
-    except FileNotFoundError:
-        print(f"❌ Configuration file not found: {config_path}")
-        return False
-    except json.JSONDecodeError as e:
-        print(f"❌ Invalid JSON in configuration file: {e}")
-        return False
-    except Exception as e:
-        print(f"❌ Failed to setup Ollama engine: {e}")
-        return False
-
 
 def test_ollama_connection(base_url: str = "http://localhost:11434/v1") -> bool:
     """
@@ -310,39 +265,27 @@ def test_ollama_connection(base_url: str = "http://localhost:11434/v1") -> bool:
 
 
 if __name__ == "__main__":
-    # Test the setup
+    # Test the setup using EngineManager
     print("🔧 Testing Ollama Engine Setup")
     print("=" * 50)
     
-    # Test connection
-    if test_ollama_connection():
-        # Set up engine
-        if setup_ollama_engine():
+    try:
+        from engine_manager import EngineManager
+        from symai import Symbol
+        
+        # Set up engine through manager
+        if EngineManager.setup_engine('ollama'):
             print("\n🎉 Ollama engine is ready to use!")
             
-            # Quick integration test with verbose output
-            try:
-                from symai import Symbol
-                
-                # Create engine with verbose mode
-                engine = OllamaEngine()
-                engine.verbose = True
-                EngineRepository.register('neurosymbolic', engine, allow_engine_override=True)
-                
-                test_symbol = Symbol("Hello Ollama!")
-                print(f"\n🧪 Testing query: 'Say exactly: Integration working!'")
-                response = test_symbol.query("Say exactly: Integration working!")
-                print(f"🎯 Result: {response}")
-                print("✅ SymbolicAI + Ollama integration successful!")
-                
-            except Exception as e:
-                print(f"\n⚠️  Integration test failed: {e}")
-                import traceback
-                traceback.print_exc()
-        else:
-            print("\n❌ Failed to set up Ollama engine")
-    else:
-        print("\n❌ Ollama is not accessible")
+            # Quick integration test
+            test_symbol = Symbol("Hello Ollama!")
+            print(f"\n🧪 Testing query: 'Say exactly: Integration working!'")
+            response = test_symbol.query("Say exactly: Integration working!")
+            print(f"🎯 Result: {response}")
+            print("✅ SymbolicAI + Ollama integration successful!")
+            
+    except Exception as e:
+        print(f"\n❌ Setup failed: {e}")
         print("\nTo start Ollama:")
         print("1. Install Ollama: https://ollama.ai/")
         print("2. Pull a model: ollama pull deepseek-r1:14b")

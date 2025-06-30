@@ -3,48 +3,59 @@
 SymbolicAI Playground - Basic Demonstration
 ===========================================
 
-This script demonstrates the core features of SymbolicAI:
-1. Symbol objects (syntactic vs semantic modes)
-2. Basic primitives and operations
-3. Contracts and validation
-4. Configuration management
+This script demonstrates the core features of SymbolicAI using either:
+- OpenAI's cloud-based API
+- Local Ollama LLM integration
 
-Before running:
-1. Set your OpenAI API key in symai.config.json
-2. Run: ./symbolicai/bin/python main.py
+Usage:
+    python main.py [openai|ollama]
+
+Example:
+    python main.py openai    # Run with OpenAI
+    python main.py ollama    # Run with Ollama
 """
 
 import os
 import sys
+import json
 from pathlib import Path
+from typing import Dict, Any
 
-def check_setup():
+# Global engine state
+current_engine: Dict[str, Any] = {'type': None, 'config': None}
+
+ENGINE_CONFIGS = {
+    'openai': {
+        'config_file': 'symai.config.openai.json',
+        'display_name': 'OpenAI',
+        'setup_message': 'Cloud-based OpenAI API',
+    },
+    'ollama': {
+        'config_file': 'symai.config.ollama.json',
+        'display_name': 'Ollama',
+        'setup_message': 'Local Ollama LLM',
+    }
+}
+
+def check_setup(engine_type: str):
     """Check if the setup is correct before proceeding."""
-    print("🔧 Checking SymbolicAI setup...")
-    
-    # Check if config file exists
-    config_path = Path("symai.config.json")
-    if not config_path.exists():
-        print("❌ Configuration file 'symai.config.json' not found!")
+    if engine_type not in ENGINE_CONFIGS:
+        print(f"❌ Unknown engine type: {engine_type}")
+        print("Available engines:", ", ".join(ENGINE_CONFIGS.keys()))
         return False
+
+    config = ENGINE_CONFIGS[engine_type]
+    print(f"🔧 Checking SymbolicAI setup for {config['display_name']}...")
+    print(f"Using {config['setup_message']}")
     
-    # Check if API key is set
-    import json
-    try:
-        with open(config_path) as f:
-            config = json.load(f)
-        
-        api_key = config.get("NEUROSYMBOLIC_ENGINE_API_KEY", "")
-        if api_key == "<YOUR_OPENAI_API_KEY>" or not api_key:
-            print("⚠️  Please set your OpenAI API key in symai.config.json")
-            print("   Replace '<YOUR_OPENAI_API_KEY>' with your actual API key")
-            return False
-        
-        print("✅ Configuration looks good!")
+    from engine_manager import EngineManager
+    
+    if EngineManager.setup_engine(engine_type, config_path=config['config_file']):
+        print(f"✅ {config['display_name']} configuration and setup successful!")
         return True
-    except Exception as e:
-        print(f"❌ Error reading config: {e}")
-        return False
+        
+    print(f"❌ {config['display_name']} setup failed - please check your configuration.")
+    return False
 
 def demo_basic_symbols():
     """Demonstrate basic Symbol usage - syntactic vs semantic."""
@@ -81,7 +92,8 @@ def demo_basic_symbols():
 def demo_symbol_operations():
     """Demonstrate Symbol arithmetic and logical operations."""
     print("\n" + "="*60)
-    print("🧮 DEMO 2: Symbol Operations and Arithmetic")
+    engine_name = current_engine['config']['display_name']
+    print(f"🧮 DEMO 2: Symbol Operations with {engine_name}")
     print("="*60)
     
     try:
@@ -185,16 +197,17 @@ def demo_contracts_basic():
 def demo_configuration():
     """Demonstrate configuration management."""
     print("\n" + "="*60)
-    print("⚙️  DEMO 5: Configuration Management")
+    engine_name = current_engine['config']['display_name']
+    print(f"⚙️  DEMO 5: {engine_name} Configuration Management")
     print("="*60)
     
     try:
         # Show current configuration
-        import json
-        with open("symai.config.json") as f:
+        config_file = current_engine['config']['config_file']
+        with open(config_file) as f:
             config = json.load(f)
         
-        print("Current configuration:")
+        print(f"Current {engine_name} configuration:")
         for key, value in config.items():
             if "API_KEY" in key:
                 # Mask API key for security
@@ -203,54 +216,81 @@ def demo_configuration():
             else:
                 print(f"  {key}: {value}")
                 
-        print("\n📍 Configuration file location: ./symai.config.json")
+        print(f"\n📍 Configuration file location: ./{config_file}")
         print("📍 You can also use environment variables or global config in ~/.symai/")
         
     except Exception as e:
         print(f"❌ Error in configuration demo: {e}")
+        print(f"   Please check {config_file} exists and is valid JSON")
 
 def demo_advanced_features():
     """Demonstrate advanced features briefly."""
     print("\n" + "="*60)
-    print("🚀 DEMO 6: Advanced Features Overview")
+    engine_name = current_engine['config']['display_name']
+    print(f"🚀 DEMO 6: Advanced Features with {engine_name}")
     print("="*60)
     
     try:
         from symai import Symbol
         
-        # Similarity comparison
-        text1 = Symbol("Machine learning is fascinating", semantic=True)
-        text2 = Symbol("AI is amazing", semantic=True)
+        # Simple transformation demo
+        print("Testing semantic transformation...")
+        text = Symbol("Today is a very cold day", semantic=True)
+        transformed = text.query("Transform this statement to describe the opposite weather")
+        print(f"Original: {text}")
+        print(f"Transformed: {transformed}")
         
-        similarity = text1.similarity(text2)
-        print(f"Similarity between texts: {similarity}")
+        # Basic classification
+        print("\nTesting classification...")
+        foods = Symbol(["pizza", "apple", "ice cream", "carrot"])
+        print(f"Foods: {foods}")
+        categories = foods.query("Classify each food as 'healthy' or 'treat'")
+        print(f"Classifications: {categories}")
         
-        # Choice selection
-        options = ["red", "blue", "green", "yellow"]
-        color_symbol = Symbol(options)
-        chosen = color_symbol.choice(["warm color", "cool color", "nature color"], default="blue")
-        print(f"Chosen color based on 'nature color': {chosen}")
-        
-        print("\n🌟 Other advanced features available:")
-        print("  • Web search integration (with SERP API)")
-        print("  • Image processing (with vision models)")
-        print("  • Speech-to-text (with Whisper)")
-        print("  • PDF processing")
-        print("  • Vector embeddings and similarity search")
-        print("  • Custom engine development")
+        print("\n🌟 Available features with your setup:")
+        if current_engine['type'] == 'openai':
+            print("  • Access to latest GPT models")
+            print("  • Cloud-based processing")
+            print("  • Integration with OpenAI services")
+        else:
+            print("  • Local processing with no API costs")
+            print("  • Full privacy and control")
+            print("  • Customizable model selection")
+            
+        print("\n💡 Common capabilities:")
+        print("  • Text generation and transformation")
+        print("  • Classification and analysis")
+        print("  • Natural language processing")
+        print("  • Custom prompt engineering")
         
     except Exception as e:
-        print(f"❌ Error in advanced features demo: {e}")
+        print(f"\n❌ Error in advanced features demo: {e}")
+        print(f"   Please verify your {engine_name} setup and try again")
 
 def main():
     """Main demonstration function."""
-    print("🎭 SymbolicAI Playground")
-    print("=======================")
-    print("A comprehensive demonstration of neuro-symbolic programming with LLMs")
+    global current_engine
+
+    # Parse command-line argument
+    if len(sys.argv) != 2 or sys.argv[1] not in ENGINE_CONFIGS:
+        print("Usage: python main.py [openai|ollama]")
+        print("\nAvailable engines:")
+        for engine, config in ENGINE_CONFIGS.items():
+            print(f"  • {engine:<10} - {config['setup_message']}")
+        return
+
+    # Set global engine state
+    current_engine['type'] = sys.argv[1]
+    current_engine['config'] = ENGINE_CONFIGS[current_engine['type']]
+    
+    print(f"🎭 SymbolicAI Playground - {current_engine['config']['display_name']} Demo")
+    print("=" * (24 + len(current_engine['config']['display_name'])))
+    print(f"A comprehensive demonstration using {current_engine['config']['setup_message']}")
     
     # Check setup first
-    if not check_setup():
-        print("\n❌ Setup incomplete. Please configure your API key first.")
+    if not check_setup(current_engine['type']):
+        print(f"\n❌ {current_engine['config']['display_name']} setup incomplete.")
+        print(f"   Please check {current_engine['config']['config_file']}")
         return
     
     try:
@@ -263,13 +303,23 @@ def main():
         demo_advanced_features()
         
         print("\n" + "="*60)
-        print("🎉 Demo completed successfully!")
+        engine_name = current_engine['config']['display_name']
+        print(f"🎉 {engine_name} Demo completed successfully!")
         print("="*60)
         print("\n🔗 Next steps:")
-        print("1. Explore the official documentation: https://extensityai.gitbook.io/symbolicai")
-        print("2. Check out examples: https://github.com/ExtensityAI/symbolicai/tree/main/examples")
-        print("3. Read the research paper: https://arxiv.org/abs/2402.00854")
-        print("4. Try building your own neuro-symbolic applications!")
+        
+        # Engine-specific resources
+        if current_engine['type'] == 'openai':
+            print("1. Explore OpenAI models: https://platform.openai.com/docs/models")
+            print("2. OpenAI API documentation: https://platform.openai.com/docs/api-reference")
+        else:
+            print("1. Explore Ollama models: https://ollama.ai/library")
+            print("2. Ollama documentation: https://github.com/ollama/ollama")
+        
+        # Common resources
+        print("3. SymbolicAI documentation: https://extensityai.gitbook.io/symbolicai")
+        print("4. Example applications: https://github.com/ExtensityAI/symbolicai/tree/main/examples")
+        print(f"5. Build your own {engine_name}-powered neuro-symbolic applications!")
         
     except ImportError as e:
         print(f"\n❌ Import error: {e}")

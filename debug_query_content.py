@@ -3,7 +3,8 @@
 Debug script to check what content is actually being sent to Ollama
 """
 
-from ollama_engine import setup_ollama_engine, OllamaEngine
+from engine_manager import EngineManager
+from ollama_engine import OllamaEngine
 from symai import Symbol
 from symai.functional import EngineRepository
 

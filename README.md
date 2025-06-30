@@ -4,66 +4,60 @@ A comprehensive demonstration and playground for exploring [SymbolicAI](https://
 
 ## 🚀 Quick Start
 
-### Option A: Using OpenAI (Cloud-Based)
+### Setup Instructions
 
-1. Edit `symai.config.json` and replace `<YOUR_OPENAI_API_KEY>` with your actual OpenAI API key:
+1. Choose and set up your preferred backend:
 
-```json
-{
-    "NEUROSYMBOLIC_ENGINE_API_KEY": "sk-your-actual-api-key-here",
-    "NEUROSYMBOLIC_ENGINE_MODEL": "gpt-4o-mini",
-    "EMBEDDING_ENGINE_API_KEY": "sk-your-actual-api-key-here",
-    "EMBEDDING_ENGINE_MODEL": "text-embedding-3-small",
-    "SUPPORT_COMMUNITY": false
-}
-```
+   **A. OpenAI (Cloud-Based)**
+   ```bash
+   # Edit symai.config.openai.json with your API key:
+   {
+       "NEUROSYMBOLIC_ENGINE_API_KEY": "sk-your-actual-api-key-here",
+       "NEUROSYMBOLIC_ENGINE_MODEL": "gpt-4o-mini",
+       "EMBEDDING_ENGINE_API_KEY": "sk-your-actual-api-key-here",
+       "EMBEDDING_ENGINE_MODEL": "text-embedding-3-small"
+   }
+   ```
 
-2. Run the demo:
-```bash
-./symbolicai/bin/python main.py
-```
+   **B. Ollama (Local & Private)**
+   ```bash
+   # 1. Install Ollama
+   curl -fsSL https://ollama.ai/install.sh | sh
 
-### Option B: Using Ollama (Local & Private)
+   # 2. Pull a model
+   ollama pull deepseek-r1:14b  # or llama3.2:3b for lighter usage
 
-1. Install Ollama:
-```bash
-curl -fsSL https://ollama.ai/install.sh | sh
-```
+   # 3. Start Ollama server
+   ollama serve
 
-2. Pull a model:
-```bash
-ollama pull deepseek-r1:14b  # or llama3.2:3b for lighter usage
-```
+   # 4. Edit symai.config.ollama.json (default config should work)
+   ```
 
-3. Start Ollama:
-```bash
-ollama serve
-```
+2. Run the unified demo with your chosen backend:
+   ```bash
+   ./symbolicai/bin/python main.py openai    # For OpenAI backend
+   ./symbolicai/bin/python main.py ollama    # For Ollama backend
+   ```
 
-4. Run the Ollama demo:
-```bash
-./symbolicai/bin/python main_ollama.py
-```
-
-See [README_OLLAMA.md](README_OLLAMA.md) for detailed local setup instructions.
+See [README_OLLAMA.md](README_OLLAMA.md) for detailed local setup instructions or
+[README_OPENAI.md](README_OPENAI.md) for OpenAI configuration details.
 
 ## 📁 Project Structure
 
 ```
 symbolicai-playground/
 ├── symbolicai/                # Conda environment with Python 3.11.13
-├── main.py                   # OpenAI demo script
-├── main_ollama.py           # Ollama demo script
-├── ollama_engine.py         # Custom Ollama integration
-├── openai_engine.py         # Custom OpenAI integration
-├── engine_manager.py        # Unified engine management
+├── main.py                   # Unified demo script (OpenAI & Ollama)
+├── ollama_engine.py         # Ollama backend integration
+├── openai_engine.py         # OpenAI backend integration
+├── engine_manager.py        # Backend management and configuration
 ├── test_engine.py          # Unified test suite
-├── symai.config.json        # OpenAI configuration
+├── symai.config.openai.json # OpenAI configuration
 ├── symai.config.ollama.json # Ollama configuration
 ├── requirements.txt         # Package dependencies
-├── README.md               # This file
-├── README_OLLAMA.md        # Ollama setup guide
-├── README_OPENAI.md        # OpenAI setup guide
+├── README.md               # Main documentation
+├── README_OLLAMA.md        # Detailed Ollama guide
+├── README_OPENAI.md        # Detailed OpenAI guide
 └── TEST_README.md          # Testing documentation
 ```
 
@@ -111,7 +105,7 @@ print("animals" in text.sem)  # True (conceptual match)
 
 SymbolicAI supports multiple configuration methods (in priority order):
 
-1. **Debug Mode**: `./symai.config.json` or `./symai.config.ollama.json` (current directory)
+1. **Debug Mode**: `./symai.config.openai.json` or `./symai.config.ollama.json` (current directory)
 2. **Environment Config**: `{python_env}/.symai/`
 3. **Global Config**: `~/.symai/`
 

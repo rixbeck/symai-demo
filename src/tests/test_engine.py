@@ -3,8 +3,8 @@
 Unified Engine Test Script for SymbolicAI
 =======================================
 
-Tests engine integrations (OpenAI, Ollama, etc.) with command-line selection.
-Usage: python -m src.tests.test_engine [openai|ollama]
+Tests engine integrations (OpenAI-compatible, Ollama, etc.) with command-line selection.
+Usage: python -m src.tests.test_engine [openai-comp|ollama]
 """
 
 import json
@@ -29,7 +29,7 @@ def load_config(engine_type: str) -> Dict[str, Any]:
     
     # Define default values for each engine type
     defaults = {
-        'openai': {
+        'openai-comp': {
             'default_base_url': 'https://api.openai.com/v1',
             'default_model': 'gpt-4'
         },
@@ -68,7 +68,7 @@ def verify_config(config: Dict[str, Any], engine_type: str) -> bool:
         print("❌ Missing required configuration values")
         return False
         
-    if engine_type == 'openai' and not is_local_endpoint(base_url):
+    if engine_type == 'openai-comp' and not is_local_endpoint(base_url):
         if not api_key or api_key == "<YOUR_OPENAI_API_KEY>" or len(api_key) < 20:
             print("❌ Invalid OpenAI API key")
             return False
@@ -198,7 +198,7 @@ def run_tests(engine_type: str) -> Tuple[int, int]:
 def main():
     """Main test execution function."""
     if len(sys.argv) != 2 or not is_valid_engine(sys.argv[1]):
-        print("Usage: python -m src.tests.test_engine [openai|ollama]")
+        print("Usage: python -m src.tests.test_engine [openai-comp|ollama]")
         print("\nAvailable engines:")
         for engine in ENGINE_CONFIGS:
             print(f"  • {engine}")

@@ -44,7 +44,7 @@ def debug_query_content():
         # Register debug engine
         debug_engine = DebugOllamaEngine()
         debug_engine.verbose = True
-        EngineRepository.register('neurosymbolic', debug_engine, allow_engine_override=True)
+        EngineRepository.register('ollama', debug_engine, allow_engine_override=True)
         
         print("\n1. Testing direct Symbol query:")
         print("-" * 30)

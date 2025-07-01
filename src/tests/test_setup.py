@@ -98,8 +98,8 @@ def main():
     
     if passed == len(tests):
         print("🎉 Setup is complete! You can run the main demo:")
-        print("   python main.py [openai|ollama]")
-        print("   python -m src.tests.test_engine [openai|ollama]")
+        print("   python main.py [openai-comp|ollama]")
+        print("   python -m src.tests.test_engine [openai-comp|ollama]")
     else:
         print("⚠️  Some issues found. Check the errors above.")
 

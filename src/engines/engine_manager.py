@@ -20,7 +20,7 @@ class EngineManager:
     """
     
     ENGINE_TYPES = {
-        'openai': {
+        'openai-comp': {
             'class': OpenAIEngine,
             'test_func': test_openai_connection,
             'default_config': 'symai.config.openai.json',
@@ -42,7 +42,7 @@ class EngineManager:
         Set up and register an engine with SymbolicAI.
 
         Args:
-            engine_type: Type of engine to setup ('openai' or 'ollama')
+            engine_type: Type of engine to setup ('openai-comp' or 'ollama')
             config_path: Path to the configuration file. If None, uses default for engine type.
             allow_override: Whether to allow overriding existing engine
 
@@ -77,14 +77,14 @@ class EngineManager:
             api_key = config.get("NEUROSYMBOLIC_ENGINE_API_KEY")
 
             # Validate API key for OpenAI
-            if engine_type == 'openai' and (not api_key or api_key == "<YOUR_OPENAI_API_KEY>"):
+            if engine_type == 'openai-comp' and (not api_key or api_key == "<YOUR_OPENAI_API_KEY>"):
                 print("❌ OpenAI API key not found in config")
                 return False
 
             # Test connection if applicable
             test_func = engine_config.get('test_func')
             if test_func:
-                if engine_type == 'openai':
+                if engine_type == 'openai-comp':
                     if not test_func(base_url, api_key):
                         return False
                 else:
@@ -116,7 +116,7 @@ class EngineManager:
         Test connection to a specific engine.
 
         Args:
-            engine_type: Type of engine to test ('openai' or 'ollama')
+            engine_type: Type of engine to test ('openai-comp' or 'ollama')
             base_url: Base URL for the API (optional)
             api_key: API key for authentication (optional, required for OpenAI)
 
@@ -134,7 +134,7 @@ class EngineManager:
             base_url = engine_config['default_base_url']
 
         try:
-            if engine_type == 'openai':
+            if engine_type == 'openai-comp':
                 return test_func(base_url, api_key)
             else:
                 return test_func(base_url)
@@ -150,8 +150,8 @@ if __name__ == "__main__":
 
     # Test OpenAI setup
     print("\nTesting OpenAI setup...")
-    if EngineManager.setup_engine('openai'):
-        print("OpenAI setup successful!")
+    if EngineManager.setup_engine('openai-comp'):
+        print("OpenAI-compatible setup successful!")
     else:
         print("OpenAI setup failed!")
 

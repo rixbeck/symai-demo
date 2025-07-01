@@ -10,8 +10,8 @@ This guide explains how to use the refactored SymbolicAI demo application with i
 # Run with Ollama (local)
 python main.py ollama
 
-# Run with OpenAI (cloud)
-python main.py openai
+# Run with OpenAI Compatible (cloud)
+python main.py openai-comp
 ```
 
 ### Running Tests
@@ -21,7 +21,7 @@ python -m src.tests.test_setup
 
 # Engine integration tests
 python test_engine.py ollama
-python test_engine.py openai
+python test_engine.py openai-comp
 ```
 
 ### Running Debug Scripts

@@ -227,7 +227,7 @@ def demo_embeddings():
         
         # Display capabilities
         print(f"\n🔬 {engine_name} Semantic Features:")
-        if current_engine['type'] == 'openai':
+        if current_engine['type'] == 'openai-comp':
             print("  • Advanced semantic understanding")
             print("  • Cross-lingual capabilities")
             print("  • Context-aware matching")
@@ -267,7 +267,7 @@ def demo_advanced_features():
         print(f"Classifications: {categories}")
         
         print("\n🌟 Available features with your setup:")
-        if current_engine['type'] == 'openai':
+        if current_engine['type'] == 'openai-comp':
             print("  • Access to latest GPT models")
             print("  • Cloud-based processing")
             print("  • Integration with OpenAI services")

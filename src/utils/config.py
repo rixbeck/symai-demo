@@ -6,10 +6,10 @@ from typing import Dict, Any
 
 # Engine configuration definitions
 ENGINE_CONFIGS = {
-    'openai': {
+    'openai-comp': {
         'config_file': 'symai.config.openai.json',
-        'display_name': 'OpenAI',
-        'setup_message': 'Cloud-based OpenAI API',
+        'display_name': 'OpenAI Compatible',
+        'setup_message': 'OpenAI-compatible API',
     },
     'ollama': {
         'config_file': 'symai.config.ollama.json',

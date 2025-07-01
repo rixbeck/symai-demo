@@ -42,7 +42,7 @@ class OpenAIEngine(Engine):
         
     def id(self) -> str:
         """Return the engine identifier."""
-        return 'neurosymbolic'
+        return 'openai-comp'
     
     def _extract_final_response(self, content: str) -> str:
         """
@@ -173,72 +173,111 @@ class OpenAIEngine(Engine):
         Returns:
             Tuple[List[str], Dict]: (list_of_responses, metadata) as expected by SymbolicAI
         """
+        # Initialize metadata with basic info
         metadata = {
             "model": self.model,
             "base_url": self.base_url,
-            "engine": "openai"
+            "engine": self.id()
         }
-        
+
         try:
+            # Get prepared payload
             payload = argument.prop.prepared_input
-            
             if self.verbose:
                 print(f"📤 Sending request to OpenAI: {payload}")
-            
-            # Make the API call to OpenAI
+
+            # Prepare headers
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.api_key}"
             }
-            
+
+            # Make API call
             response = self.session.post(
                 f"{self.base_url}/chat/completions",
                 headers=headers,
                 json=payload,
                 timeout=60
             )
-            
-            response.raise_for_status()
-            result = response.json()
-            
-            # Extract the content from OpenAI's response
+
+            # Check for HTTP errors
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                if response.status_code == 401:
+                    error_msg = "Authentication failed. Please check your API key."
+                else:
+                    error_msg = f"API request failed (HTTP {response.status_code}): {str(e)}"
+                if self.verbose:
+                    print(error_msg)
+                return [f"Error: {error_msg}"], {
+                    "error": True,
+                    "status": "api_error",
+                    "http_status": response.status_code,
+                    **metadata
+                }
+
+            # Parse JSON response
+            try:
+                result = response.json()
+            except json.JSONDecodeError as e:
+                error_msg = f"Failed to decode API response: {str(e)}"
+                if self.verbose:
+                    print(error_msg)
+                return [f"Error: {error_msg}"], {
+                    "error": True,
+                    "status": "invalid_response",
+                    **metadata
+                }
+
+            # Process successful response
             if "choices" in result and len(result["choices"]) > 0:
                 raw_content = result["choices"][0]["message"]["content"]
-                
-                # Clean the content to remove thinking tags
                 clean_content = self._extract_final_response(raw_content)
-                
-                # Add usage information to metadata if available
+
+                # Update metadata
                 if "usage" in result:
                     metadata["usage"] = result["usage"]
-                
-                # Add raw content to metadata for debugging
                 metadata["raw_content"] = raw_content[:200] + "..." if len(raw_content) > 200 else raw_content
-                
+
                 if self.verbose:
                     print(f"📥 Raw response: {raw_content[:100]}...")
                     print(f"✨ Clean response: {clean_content[:100]}...")
-                
-                # Return as (list_of_responses, metadata) tuple as expected by SymbolicAI
-                return [clean_content] if clean_content else ["No response generated"], metadata
+
+                if clean_content:
+                    return [clean_content], metadata
+                else:
+                    return ["Error: No valid response generated"], {
+                        "error": True,
+                        "status": "empty_response",
+                        **metadata
+                    }
             else:
-                return ["No response generated"], metadata
-                
+                return ["Error: No response content"], {
+                    "error": True,
+                    "status": "no_content",
+                    **metadata
+                }
+
         except requests.exceptions.RequestException as e:
-            error_msg = f"OpenAI API request failed: {e}"
+            error_msg = f"API connection error: {str(e)}"
             if self.verbose:
                 print(error_msg)
-            return [f"Error: {error_msg}"], metadata
-        except json.JSONDecodeError as e:
-            error_msg = f"Failed to decode OpenAI response: {e}"
-            if self.verbose:
-                print(error_msg)
-            return [f"Error: {error_msg}"], metadata
+            return [f"Error: {error_msg}"], {
+                "error": True,
+                "status": "connection_error",
+                **metadata
+            }
+
         except Exception as e:
-            error_msg = f"Unexpected error in OpenAIEngine.forward: {e}"
+            error_msg = f"Unexpected error: {str(e)}"
             if self.verbose:
                 print(error_msg)
-            return [f"Error: {error_msg}"], metadata
+            return [f"Error: {error_msg}"], {
+                "error": True,
+                "status": "internal_error",
+                **metadata
+            }
 
 
 
@@ -284,8 +323,8 @@ if __name__ == "__main__":
         from symai import Symbol
         
         # Set up engine through manager
-        if EngineManager.setup_engine('openai'):
-            print("\n🎉 OpenAI engine is ready to use!")
+        if EngineManager.setup_engine('openai-comp'):
+            print("\n🎉 OpenAI-compatible engine is ready to use!")
             
             # Quick integration test
             test_symbol = Symbol("Hello OpenAI!")

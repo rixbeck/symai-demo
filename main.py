@@ -12,17 +12,17 @@ Supported Engines:
 - Ollama: Local LLM integration with various models
 
 Usage:
-    python main.py [openai|ollama]
+    python main.py [openai-comp|ollama]
 
 Examples:
-    python main.py openai    # Run demos using OpenAI's cloud API
-    python main.py ollama    # Run demos using local Ollama installation
+    python main.py openai-comp    # Run demos using OpenAI-compatible API
+    python main.py ollama        # Run demos using local Ollama installation
 
 Notes:
 - Each demo adapts to the selected engine's capabilities
 - Semantic operations are consistently available across both engines
 - Configuration files:
-  * OpenAI: symai.config.openai.json
+  * OpenAI Compatible: symai.config.openai.json
   * Ollama: symai.config.ollama.json
 """
 
@@ -64,7 +64,7 @@ def main():
 
     # Parse command-line argument
     if len(sys.argv) != 2 or not is_valid_engine(sys.argv[1]):
-        print("Usage: python main.py [openai|ollama]")
+        print("Usage: python main.py [openai-comp|ollama]")
         print("\nAvailable engines:")
         for engine, config in ENGINE_CONFIGS.items():
             print(f"  • {engine:<10} - {config['setup_message']}")
@@ -104,9 +104,9 @@ def main():
         print("\n🔗 Next steps:")
         
         # Engine-specific resources
-        if current_engine['type'] == 'openai':
-            print("1. Explore OpenAI models: https://platform.openai.com/docs/models")
-            print("2. OpenAI API documentation: https://platform.openai.com/docs/api-reference")
+        if current_engine['type'] == 'openai-comp':
+            print("1. Learn about OpenAI API compatibility: https://platform.openai.com/docs/api-reference")
+            print("2. Compatible providers documentation: https://platform.openai.com/docs/api-compatibility")
         else:
             print("1. Explore Ollama models: https://ollama.ai/library")
             print("2. Ollama documentation: https://github.com/ollama/ollama")

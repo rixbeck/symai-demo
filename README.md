@@ -8,7 +8,7 @@ Follow these steps to set up and run the demo with your preferred backend.
 
 ### 1. Choose and Set Up Your Backend
 
-#### A. OpenAI (Cloud-Based)
+#### A. OpenAI Compatible (Cloud-Based)
 
 1.  **Configure API Key**: Edit the `symai.config.openai.json` file in the root directory and add your OpenAI API key.
 
@@ -23,7 +23,7 @@ Follow these steps to set up and run the demo with your preferred backend.
 
 2.  **Test the Setup**:
     ```bash
-    ./symbolicai/bin/python test_engine.py openai
+    ./symbolicai/bin/python test_engine.py openai-comp
     ```
 
 #### B. Ollama (Local & Private)
@@ -60,8 +60,8 @@ Follow these steps to set up and run the demo with your preferred backend.
 Use the `main.py` script, specifying which backend configuration to use.
 
 ```bash
-# Run with the OpenAI backend
-./symbolicai/bin/python main.py openai
+# Run with the OpenAI Compatible backend
+./symbolicai/bin/python main.py openai-comp
 
 # Run with the Ollama backend
 ./symbolicai/bin/python main.py ollama

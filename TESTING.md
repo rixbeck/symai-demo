@@ -12,8 +12,8 @@ To validate your setup for a specific engine, run the unified test script from t
 
 # --- Examples ---
 
-# Test OpenAI setup
-./symbolicai/bin/python test_engine.py openai
+# Test OpenAI Compatible setup
+./symbolicai/bin/python test_engine.py openai-comp
 
 # Test Ollama setup
 ./symbolicai/bin/python test_engine.py ollama
@@ -33,7 +33,7 @@ The test suite will automatically perform the following checks:
 
 The test script relies on the same configuration files used by the main application. Ensure the correct file is present and configured in the project's root directory.
 
-### OpenAI Configuration (`symai.config.openai.json`)
+### OpenAI Compatible Configuration (`symai.config.openai.json`)
 
 ```json
 {
@@ -59,7 +59,7 @@ The test script relies on the same configuration files used by the main applicat
 
 ## 🐛 Troubleshooting Test Failures
 
-### OpenAI Issues
+### OpenAI Compatible Issues
 
 -   **API Key Error**: Verify your API key in `symai.config.openai.json` is valid and has sufficient credits.
 -   **Connection Error**: Check your internet connection. Ensure `https://api.openai.com` is accessible.

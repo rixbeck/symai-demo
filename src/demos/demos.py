@@ -218,12 +218,10 @@ def demo_embeddings():
         ])
         
         # Search using semantic understanding
-        query = Symbol("good weather", semantic=True)
+        query = Symbol("every good weather related", semantic=True)
         print(f"\nSearching for: '{query}'")
-        results = corpus.filter("find texts about good weather")
-        print("Top matches:")
-        for idx, result in enumerate(results[:2], 1):
-            print(f"  {idx}. {result}")
+        results = corpus.filter(query)
+        print(results); 
         
         # Display capabilities
         print(f"\n🔬 {engine_name} Semantic Features:")
